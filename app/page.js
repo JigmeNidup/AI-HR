@@ -30,9 +30,17 @@ export default function Home() {
         body: JSON.stringify({ message }),
       });
       res = await res.json();
-      console.log(res);
       let temp2 = Data;
-      temp2.push({ user: "ai", message: String(res.data) });
+      let msg = "";
+      for (let i = 0; i < res.data.length; i++) {
+        if (res.data[i] == "") {
+          msg += " ";
+        } else {
+          msg += res.data[i];
+        }
+      }
+
+      temp2.push({ user: "ai", message: msg });
       setData(temp2);
     } catch (error) {
       console.log(error);
@@ -67,6 +75,7 @@ export default function Home() {
                 } else if (w < 30) {
                   w = 40;
                 }
+
                 if (val.user === "ai") {
                   return (
                     <Row key={i} style={{ marginTop: 10 }}>
@@ -79,9 +88,15 @@ export default function Home() {
                           alt="ai img"
                         />
                       </Col>
-                      <Col>
+                      <Col
+                        span={20}
+                        style={{
+                          textAlign: "justify",
+                        }}
+                      >
                         <p
                           style={{
+                            width: w,
                             padding: 10,
                             marginRight: "auto",
                             marginLeft: 10,
