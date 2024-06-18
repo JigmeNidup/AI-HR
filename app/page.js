@@ -1,113 +1,165 @@
+"use client";
+import { SendOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Form, Input, Row, message } from "antd";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import hr_img from "@/public/aihr.png";
+import user_img from "@/public/user.jpg";
 
 export default function Home() {
+  const [Data, setData] = useState([
+    {
+      message: String("hi how are you"),
+      user: "ai",
+    },
+  ]);
+
+  const [render, setRender] = useState(Math.random());
+  useEffect(() => {}, [render]);
+
+  const handleSubmit = async (val) => {
+    let { message } = val;
+    let temp = Data;
+    temp.push({ user: "user", message });
+    setData(temp);
+
+    try {
+      let res = await fetch("http://localhost:5000/process-text", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+      });
+      res = await res.json();
+      console.log(res);
+      let temp2 = Data;
+      temp2.push({ user: "ai", message: String(res.data) });
+      setData(temp2);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setRender(Math.random());
+    }
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <main
+      style={{
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "aquamarine",
+      }}
+    >
+      <Card bordered hoverable style={{ height: 600, width: 450, padding: 0 }}>
+        <Row>
+          <Col span={24}>
+            <div style={{ textAlign: "center", fontSize: "22px" }}>
+              <h1>Chat With HR AI</h1>
+            </div>
+          </Col>
+          <Col span={24} style={{ marginTop: 10 }}>
+            <div style={{ height: 460, overflow: "auto" }}>
+              {Data.map((val, i) => {
+                let w = val.message.length * 10;
+                if (w > 300) {
+                  w = 300;
+                } else if (w < 30) {
+                  w = 40;
+                }
+                if (val.user === "ai") {
+                  return (
+                    <Row key={i} style={{ marginTop: 10 }}>
+                      <Col span={2}>
+                        <Image
+                          style={{ borderRadius: 20 }}
+                          src={hr_img}
+                          height={30}
+                          width={30}
+                          alt="ai img"
+                        />
+                      </Col>
+                      <Col>
+                        <p
+                          style={{
+                            padding: 10,
+                            marginRight: "auto",
+                            marginLeft: 10,
+                            border: "1px solid black",
+                            borderRadius: "0px 10px 10px 10px",
+                          }}
+                        >
+                          {val.message}
+                        </p>
+                      </Col>
+                    </Row>
+                  );
+                } else {
+                  return (
+                    <Row key={i} style={{ marginTop: 10 }}>
+                      <Col span={2} />
+                      <Col
+                        span={20}
+                        style={{
+                          textAlign: "justify",
+                        }}
+                      >
+                        <p
+                          style={{
+                            width: w,
+                            padding: 10,
+                            marginLeft: "auto",
+                            marginRight: 10,
+
+                            border: "1px solid black",
+                            borderRadius: "10px 0px 10px 10px",
+                          }}
+                        >
+                          {val.message}
+                        </p>
+                      </Col>
+                      <Col span={2}>
+                        <Image
+                          style={{ borderRadius: 20 }}
+                          src={user_img}
+                          height={30}
+                          width={30}
+                          alt="ai img"
+                        />
+                      </Col>
+                    </Row>
+                  );
+                }
+              })}
+            </div>
+          </Col>
+          <Col
+            span={24}
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
           >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+            <Form layout="inline" onFinish={handleSubmit}>
+              <Form.Item name="message">
+                <Input style={{ width: 280 }} />
+              </Form.Item>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+              <Form.Item>
+                <Button
+                  htmlType="submit"
+                  type="primary"
+                  style={{ width: 80 }}
+                  icon={<SendOutlined />}
+                >
+                  Send
+                </Button>
+              </Form.Item>
+            </Form>
+          </Col>
+        </Row>
+      </Card>
     </main>
   );
 }
