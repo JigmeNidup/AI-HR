@@ -27,7 +27,7 @@ export default function Home() {
       let res = await fetch("http://localhost:5000/process-text", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message, emp_no: 4 }),
       });
       res = await res.json();
       let temp2 = Data;
